@@ -1,0 +1,11 @@
+FROM node:v16.18.0
+
+WORKDIR /app
+
+COPY package*.json ./
+
+COPY . .
+
+EXPOSE 1789
+
+CMD ["yarn", "dev:prod"]
