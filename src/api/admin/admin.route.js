@@ -12,6 +12,7 @@ import {
 	deletePlacement,
 	getPlacement,
 	updatedProfil,
+	createNewCompany,
 } from "./admin.controller.js";
 
 const adminRoute = Router();
@@ -242,5 +243,52 @@ adminRoute.get("/placement", getPlacement);
  *           required: true
  */
 adminRoute.post("/settings", updatedProfil);
+/**
+ * @swagger
+ * paths:
+ *   /api/admin/company:
+ *     post:
+ *       summary:
+ *       tags:
+ *         - Admin
+ *       responses:
+ *         '200':
+ *           description: Succès, Enregistrement avec succés
+ *       requestBody:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/company'
+ * components:
+ *   schemas:
+ *     company:
+ *       type: object
+ *       properties:
+ *         raisonSocial:
+ *           type: string
+ *           required: true
+ *         adresseEntreprise:
+ *           type: string
+ *           required: true
+ *         numeroIdentificationFiscale:
+ *           type: string
+ *           required: true
+ *         nomRepresentant:
+ *           type: string
+ *           required: true
+ *         prenomRepresentant:
+ *           type: string
+ *           required: true
+ *         emailRepresentant:
+ *           type: string
+ *           required: true
+ *         telRepresentant:
+ *           type: string
+ *           required: true
+ *         adresseRepresentant:
+ *           type: string
+ *           required: true
+ */
+adminRoute.post("/company", createNewCompany);
 
 export default adminRoute;

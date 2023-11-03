@@ -3,6 +3,8 @@ import UserEntrepriseRepository from "../../databases/repository/userEntrepriseR
 import PlacementRepository from "../../databases/repository/placementRepository.js";
 import UserAdminRepository from "../../databases/repository/userAdminRepository.js";
 import User from "../../databases/models/user_Admin.js";
+import { generateAuthToken } from "../utils/auth.validationUtils.js";
+import { existingUserVerification } from "../authentification/handler.js";
 
 const userFreelancerRepository = new UserFreelancerRepository();
 const userEntrepriseRepository = new UserEntrepriseRepository();
@@ -302,7 +304,27 @@ const updateProfilHandler = async (data) => {
 		user.prenom = prenom;
 		user.email = email;
 		await user.save();
-		return "Enregistrement avec succés";
+		const authToken = generateAuthToken(user);
+		return { user, authToken };
+	} catch (error) {
+		throw error;
+	}
+};
+
+const createAccoundCompanyHandler = async (userData) => {
+	try {
+		const existingUser = await existingUserVerification(
+			userData.emailRepresentant
+		);
+		if (existingUser) {
+			return "Cet email est déjà utilisé.";
+		}
+		const user = await userEntrepriseRepository.createUser(userData);
+
+		return {
+			success: true,
+			user,
+		};
 	} catch (error) {
 		throw error;
 	}
@@ -321,4 +343,5 @@ export {
 	deletePlacementHandler,
 	getPlacementHandler,
 	updateProfilHandler,
+	createAccoundCompanyHandler,
 };

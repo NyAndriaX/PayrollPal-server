@@ -11,13 +11,25 @@ import {
 	deletePlacementHandler,
 	getPlacementHandler,
 	updateProfilHandler,
+	createAccoundCompanyHandler,
 } from "./admin.handler.js";
 import { validateAdminSignup } from "../authentification/validation.js";
 import { validationAuth } from "../utils/index.js";
 import { validationMessages } from "../errors/index.js";
-import { adminValidation } from "../utils/admin.utils.js";
-import { placementValidateData } from "./admin.validation.js";
+import {
+	adminValidation,
+	generateRandomPassword,
+} from "../utils/admin.utils.js";
+import {
+	placementValidateData,
+	CompanyVaidationInAdmin,
+} from "./admin.validation.js";
 import { AdminValidationMessage } from "../errors/index.js";
+import { sendCodeAndHTTPInValidationMailForNewAccountCompany } from "../../service/admin.mailer.js";
+import {
+	generateUniqueToken,
+	generateAuthToken,
+} from "../utils/auth.validationUtils.js";
 
 const getAllUsers = async (req, res) => {
 	try {
@@ -156,6 +168,43 @@ const updatedProfil = async (req, res) => {
 	}
 };
 
+const createNewCompany = async (req, res) => {
+	try {
+		const errorMessage = await validationAuth(
+			req,
+			CompanyVaidationInAdmin,
+			validationMessages
+		);
+
+		if (errorMessage) {
+			return res.status(400).json({ message: errorMessage });
+		}
+		const generatePassword = generateRandomPassword();
+		const userData = {
+			...req.body,
+			password: generatePassword,
+			isPasswordConfirmed: generatePassword,
+			emailVerificationCode: generateUniqueToken(),
+		};
+		const result = await createAccoundCompanyHandler(userData);
+		if (typeof result === "string") {
+			return res.status(400).json({ error: result });
+		}
+
+		await sendCodeAndHTTPInValidationMailForNewAccountCompany(
+			userData.emailRepresentant,
+			userData.password,
+			userData.emailVerificationCode
+		);
+
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		throw error;
+	}
+};
+
 export {
 	getAllUsers,
 	deleteUsers,
@@ -169,4 +218,5 @@ export {
 	deletePlacement,
 	getPlacement,
 	updatedProfil,
+	createNewCompany,
 };
