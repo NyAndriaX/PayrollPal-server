@@ -14,6 +14,7 @@ import {
 	updatedProfil,
 	createNewCompany,
 	getAllCompanyNotCondition,
+	updatedCompanyUser,
 } from "./admin.controller.js";
 
 const adminRoute = Router();
@@ -295,14 +296,48 @@ adminRoute.post("/company", createNewCompany);
  * @swagger
  * paths:
  *   /api/admin/company:
- *     get:
- *       summary: Prendre toutes les entreprises
+ *     put:
+ *       summary:
  *       tags:
  *         - Admin
  *       responses:
  *         '200':
- *           description: Succès, renvoie toutes l'ensemble de company
+ *           description: Succès, Enregistrement avec succés
+ *       requestBody:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/company'
+ * components:
+ *   schemas:
+ *     company:
+ *       type: object
+ *       properties:
+ *         raisonSocial:
+ *           type: string
+ *           required: true
+ *         adresseEntreprise:
+ *           type: string
+ *           required: true
+ *         numeroIdentificationFiscale:
+ *           type: string
+ *           required: true
+ *         nomRepresentant:
+ *           type: string
+ *           required: true
+ *         prenomRepresentant:
+ *           type: string
+ *           required: true
+ *         emailRepresentant:
+ *           type: string
+ *           required: true
+ *         telRepresentant:
+ *           type: string
+ *           required: true
+ *         adresseRepresentant:
+ *           type: string
+ *           required: true
  */
-adminRoute.get("/company", getAllCompanyNotCondition);
+adminRoute.put("/company", updatedCompanyUser);
 
 export default adminRoute;

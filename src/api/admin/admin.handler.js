@@ -5,6 +5,8 @@ import UserAdminRepository from "../../databases/repository/userAdminRepository.
 import User from "../../databases/models/user_Admin.js";
 import { generateAuthToken } from "../utils/auth.validationUtils.js";
 import { existingUserVerification } from "../authentification/handler.js";
+import { sendCodeAndHTTPInValidationMailForUpdateCompany } from "../../service/admin.mailer.js";
+import { generateUniqueToken } from "../utils/auth.validationUtils.js";
 
 const userFreelancerRepository = new UserFreelancerRepository();
 const userEntrepriseRepository = new UserEntrepriseRepository();
@@ -339,6 +341,43 @@ const getAllCompanyNotConditionHandler = async () => {
 	}
 };
 
+const updatedCompanyUserHandler = async (userData) => {
+	try {
+		const existingUser = await existingUserVerification(
+			userData.emailRepresentant
+		);
+		if (existingUser) {
+			return "Cet email est déjà utilisé.";
+		}
+
+		const user = await userEntrepriseRepository.getUserById(userData.id);
+
+		if (user.emailRepresentant !== userData.emailRepresentant) {
+			user.isEmailConfirmed = false;
+			user.emailRepresentant = userData.emailRepresentant;
+			user.emailVerificationCode = generateUniqueToken();
+			await sendCodeAndHTTPInValidationMailForUpdateCompany(
+				user.emailRepresentant,
+				user.emailVerificationCode
+			);
+		}
+		user.nomRepresentant = userData.nomRepresentant;
+		user.prenomRepresentant = userData.prenomRepresentant;
+		user.raisonSocial = userData.raisonSocial;
+		user.adresseEntreprise = userData.adresseEntreprise;
+		user.adresseRepresentant = userData.adresseRepresentant;
+		user.numeroIdentificationFiscale = userData.numeroIdentificationFiscale;
+		user.telRepresentant = userData.telRepresentant;
+		await user.save();
+		return {
+			succes: true,
+			user,
+		};
+	} catch (error) {
+		throw error;
+	}
+};
+
 export {
 	getUserWithFilter,
 	deleteUserHandler,
@@ -354,4 +393,5 @@ export {
 	updateProfilHandler,
 	createAccountCompanyHandler,
 	getAllCompanyNotConditionHandler,
+	updatedCompanyUserHandler,
 };

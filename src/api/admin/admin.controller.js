@@ -13,6 +13,7 @@ import {
 	updateProfilHandler,
 	createAccountCompanyHandler,
 	getAllCompanyNotConditionHandler,
+	updatedCompanyUserHandler,
 } from "./admin.handler.js";
 import { validateAdminSignup } from "../authentification/validation.js";
 import { validationAuth } from "../utils/index.js";
@@ -218,6 +219,27 @@ const getAllCompanyNotCondition = async (req, res) => {
 	}
 };
 
+const updatedCompanyUser = async (req, res) => {
+	const userData = req.body;
+	try {
+		const errorMessage = await validationAuth(
+			req,
+			CompanyVaidationInAdmin,
+			validationMessages
+		);
+
+		if (errorMessage) {
+			return res.status(400).json({ message: errorMessage });
+		}
+		const result = await updatedCompanyUserHandler(userData);
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		res.status(500).json({ Error: error.message });
+	}
+};
+
 export {
 	getAllUsers,
 	deleteUsers,
@@ -233,4 +255,5 @@ export {
 	updatedProfil,
 	createNewCompany,
 	getAllCompanyNotCondition,
+	updatedCompanyUser,
 };
