@@ -220,6 +220,7 @@ const getAllCompanyNotCondition = async (req, res) => {
 };
 
 const updatedCompanyUser = async (req, res) => {
+	const { userId } = req.params;
 	const userData = req.body;
 	try {
 		const errorMessage = await validationAuth(
@@ -231,7 +232,7 @@ const updatedCompanyUser = async (req, res) => {
 		if (errorMessage) {
 			return res.status(400).json({ message: errorMessage });
 		}
-		const result = await updatedCompanyUserHandler(userData);
+		const result = await updatedCompanyUserHandler(userId, userData);
 		return res.status(200).json({
 			result,
 		});

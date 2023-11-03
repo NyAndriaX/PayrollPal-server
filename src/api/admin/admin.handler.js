@@ -7,6 +7,7 @@ import { generateAuthToken } from "../utils/auth.validationUtils.js";
 import { existingUserVerification } from "../authentification/handler.js";
 import { sendCodeAndHTTPInValidationMailForUpdateCompany } from "../../service/admin.mailer.js";
 import { generateUniqueToken } from "../utils/auth.validationUtils.js";
+import { ObjectId } from "mongoose";
 
 const userFreelancerRepository = new UserFreelancerRepository();
 const userEntrepriseRepository = new UserEntrepriseRepository();
@@ -341,16 +342,16 @@ const getAllCompanyNotConditionHandler = async () => {
 	}
 };
 
-const updatedCompanyUserHandler = async (userData) => {
+const updatedCompanyUserHandler = async (userId, userData) => {
 	try {
 		const existingUser = await existingUserVerification(
 			userData.emailRepresentant
 		);
-		if (existingUser) {
+		if (existingUser && existingUser?._id.equals(new ObjectId(userId))) {
 			return "Cet email est déjà utilisé.";
 		}
 
-		const user = await userEntrepriseRepository.getUserById(userData.id);
+		const user = await userEntrepriseRepository.getUserById(userId);
 
 		if (user.emailRepresentant !== userData.emailRepresentant) {
 			user.isEmailConfirmed = false;
@@ -374,6 +375,7 @@ const updatedCompanyUserHandler = async (userData) => {
 			user,
 		};
 	} catch (error) {
+		console.log(error);
 		throw error;
 	}
 };

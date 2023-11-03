@@ -296,6 +296,19 @@ adminRoute.post("/company", createNewCompany);
  * @swagger
  * paths:
  *   /api/admin/company:
+ *     get:
+ *       summary: Prendre toutes les entreprises
+ *       tags:
+ *         - Admin
+ *       responses:
+ *         '200':
+ *           description: Succès, renvoie toutes l'ensemble de company
+ */
+adminRoute.get("/company", getAllCompanyNotCondition);
+/**
+ * @swagger
+ * paths:
+ *   /api/admin/company/:userId:
  *     put:
  *       summary:
  *       tags:
@@ -338,6 +351,6 @@ adminRoute.post("/company", createNewCompany);
  *           type: string
  *           required: true
  */
-adminRoute.put("/company", updatedCompanyUser);
+adminRoute.put("/company/:userId", updatedCompanyUser);
 
 export default adminRoute;
