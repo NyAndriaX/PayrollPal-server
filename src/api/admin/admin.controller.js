@@ -11,7 +11,8 @@ import {
 	deletePlacementHandler,
 	getPlacementHandler,
 	updateProfilHandler,
-	createAccoundCompanyHandler,
+	createAccountCompanyHandler,
+	getAllCompanyNotConditionHandler,
 } from "./admin.handler.js";
 import { validateAdminSignup } from "../authentification/validation.js";
 import { validationAuth } from "../utils/index.js";
@@ -186,7 +187,7 @@ const createNewCompany = async (req, res) => {
 			isPasswordConfirmed: generatePassword,
 			emailVerificationCode: generateUniqueToken(),
 		};
-		const result = await createAccoundCompanyHandler(userData);
+		const result = await createAccountCompanyHandler(userData);
 		if (typeof result === "string") {
 			return res.status(400).json({ error: result });
 		}
@@ -201,7 +202,19 @@ const createNewCompany = async (req, res) => {
 			result,
 		});
 	} catch (error) {
-		throw error;
+		res.status(500).json({ Error: error.message });
+	}
+};
+
+const getAllCompanyNotCondition = async (req, res) => {
+	try {
+		const result = await getAllCompanyNotConditionHandler();
+
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		res.status(500).json({ Error: error.message });
 	}
 };
 
@@ -219,4 +232,5 @@ export {
 	getPlacement,
 	updatedProfil,
 	createNewCompany,
+	getAllCompanyNotCondition,
 };

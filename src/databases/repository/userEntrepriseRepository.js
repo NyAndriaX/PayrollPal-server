@@ -66,6 +66,17 @@ class UserEntrepriseRepository {
 			);
 		}
 	}
+	async getAllUsersNotCondition() {
+		try {
+			const users = await UserEntreprise.find();
+			return users;
+		} catch (error) {
+			throw new Error(
+				"Erreur lors de la récupération de tous les utilisateurs : " +
+					error.message
+			);
+		}
+	}
 
 	async getAllUsers() {
 		try {

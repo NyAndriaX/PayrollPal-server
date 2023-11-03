@@ -311,7 +311,7 @@ const updateProfilHandler = async (data) => {
 	}
 };
 
-const createAccoundCompanyHandler = async (userData) => {
+const createAccountCompanyHandler = async (userData) => {
 	try {
 		const existingUser = await existingUserVerification(
 			userData.emailRepresentant
@@ -330,6 +330,15 @@ const createAccoundCompanyHandler = async (userData) => {
 	}
 };
 
+const getAllCompanyNotConditionHandler = async () => {
+	try {
+		const user = await userEntrepriseRepository.getAllUsersNotCondition();
+		return user;
+	} catch (error) {
+		throw error;
+	}
+};
+
 export {
 	getUserWithFilter,
 	deleteUserHandler,
@@ -343,5 +352,6 @@ export {
 	deletePlacementHandler,
 	getPlacementHandler,
 	updateProfilHandler,
-	createAccoundCompanyHandler,
+	createAccountCompanyHandler,
+	getAllCompanyNotConditionHandler,
 };

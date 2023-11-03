@@ -13,6 +13,7 @@ import {
 	getPlacement,
 	updatedProfil,
 	createNewCompany,
+	getAllCompanyNotCondition,
 } from "./admin.controller.js";
 
 const adminRoute = Router();
@@ -290,5 +291,18 @@ adminRoute.post("/settings", updatedProfil);
  *           required: true
  */
 adminRoute.post("/company", createNewCompany);
+/**
+ * @swagger
+ * paths:
+ *   /api/admin/company:
+ *     get:
+ *       summary: Prendre toutes les entreprises
+ *       tags:
+ *         - Admin
+ *       responses:
+ *         '200':
+ *           description: Succès, renvoie toutes l'ensemble de company
+ */
+adminRoute.get("/company", getAllCompanyNotCondition);
 
 export default adminRoute;
