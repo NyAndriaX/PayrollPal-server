@@ -4,6 +4,7 @@ import UserFreelancerRepository from "../../databases/repository/userFreelancerR
 import UserEntrepriseRepository from "../../databases/repository/userEntrepriseRepository.js";
 import PlacementRepository from "../../databases/repository/placementRepository.js";
 import UserAdminRepository from "../../databases/repository/userAdminRepository.js";
+import { convertPlacementDataHandler } from "../admin/admin.handler.js";
 import { ObjectId } from "mongoose";
 import { generateAuthToken } from "../utils/auth.validationUtils.js";
 
@@ -13,7 +14,6 @@ const userAdminRepository = new UserAdminRepository();
 const placementRepository = new PlacementRepository();
 
 const updatedCompanyUserHandler = async (userId, userData) => {
-	console.log(userData);
 	try {
 		const existingUser = await existingUserVerification(
 			userData.emailRepresentant
@@ -52,4 +52,67 @@ const updatedCompanyUserHandler = async (userId, userData) => {
 	}
 };
 
-export { updatedCompanyUserHandler };
+const fetchAllFreelanceHandler = async (idEntreprise) => {
+	try {
+		const result = await placementRepository.getPlacementWidthIdEntreprise(
+			idEntreprise
+		);
+		if (result.length === 0) {
+			return [];
+		}
+
+		const response = result.map((placement) => {
+			return convertPlacementDataHandler(placement);
+		});
+
+		const nonUndefinedOrNullResponse = response.filter(
+			(item) => item !== undefined && item !== null
+		);
+
+		if (nonUndefinedOrNullResponse.length === 0) {
+			return [];
+		}
+
+		const convertedResult = await Promise.all(nonUndefinedOrNullResponse);
+
+		const filteredResult = convertedResult.filter(
+			(item) => item && Object.keys(item).length > 0
+		);
+
+		return filteredResult;
+		return response;
+	} catch (error) {
+		throw error;
+	}
+};
+
+const deleteOnePlacementInThisCompanyHandler = async (
+	idEntreprise,
+	idFreelance
+) => {
+	try {
+		const placement =
+			await placementRepository.getPlacementWidthIdFreelanceAndIdEntreprise(
+				idFreelance,
+				idEntreprise
+			);
+		if (placement.length === 0) {
+			throw new Error("Cet placement n'existe plus");
+		}
+
+		await placementRepository.deletePlacement(placement[0]._id);
+
+		return {
+			success: true,
+			placementId: placement[0]._id,
+		};
+	} catch (error) {
+		throw error;
+	}
+};
+
+export {
+	updatedCompanyUserHandler,
+	fetchAllFreelanceHandler,
+	deleteOnePlacementInThisCompanyHandler,
+};

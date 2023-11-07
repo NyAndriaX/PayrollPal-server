@@ -135,11 +135,13 @@ const convertPlacementDataHandler = async (placement) => {
 			id: placement.idFreelance,
 			nom: freelance?.nom,
 			prenom: freelance?.prenom,
+			tel: freelance?.tel,
 		},
 		FreelanceChasseur: {
 			id: placement.idFreelanceChasseur,
 			nom: freelanceChasseur?.nom,
 			prenom: freelanceChasseur?.prenom,
+			tel: freelanceChasseur?.tel,
 		},
 		entreprise: {
 			id: placement.idEntreprise,
@@ -272,7 +274,6 @@ const getPlacementHandler = async () => {
 
 		return filteredResult;
 	} catch (error) {
-		console.log(error);
 		throw error;
 	}
 };
@@ -395,4 +396,5 @@ export {
 	createAccountCompanyHandler,
 	getAllCompanyNotConditionHandler,
 	updatedCompanyUserHandler,
+	convertPlacementDataHandler,
 };

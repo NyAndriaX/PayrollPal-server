@@ -1,7 +1,11 @@
 import { validationAuth } from "../utils/index.js";
 import { CompanyValidation } from "./company.validation.js";
 import { validationMessages } from "../errors/index.js";
-import { updatedCompanyUserHandler } from "./company.handler.js";
+import {
+	updatedCompanyUserHandler,
+	fetchAllFreelanceHandler,
+	deleteOnePlacementInThisCompanyHandler,
+} from "./company.handler.js";
 
 const updatedCompanyUser = async (req, res) => {
 	const { userId } = req.params;
@@ -27,4 +31,39 @@ const updatedCompanyUser = async (req, res) => {
 	}
 };
 
-export { updatedCompanyUser };
+const fetchAllFreelancer = async (req, res) => {
+	const { idEntreprise } = req.params;
+	try {
+		const result = await fetchAllFreelanceHandler(idEntreprise);
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		res.status(500).json({
+			error,
+		});
+	}
+};
+
+const deleteOnePlacementInThisCompany = async (req, res) => {
+	const { idEntreprise, idFreelance } = req.params;
+	try {
+		const result = await deleteOnePlacementInThisCompanyHandler(
+			idEntreprise,
+			idFreelance
+		);
+
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ Error: error.message });
+	}
+};
+
+export {
+	updatedCompanyUser,
+	fetchAllFreelancer,
+	deleteOnePlacementInThisCompany,
+};

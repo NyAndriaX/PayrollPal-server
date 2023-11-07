@@ -36,6 +36,24 @@ class PlacementRepository {
 			);
 		}
 	}
+
+	async getPlacementWidthIdEntreprise(idEntreprise) {
+		try {
+			if (!mongoose.Types.ObjectId.isValid(idEntreprise)) {
+				throw new Error("L'identifiant du entreprise n'est pas valide.");
+			}
+			const placement = await Placement.find({
+				idEntreprise,
+			});
+			return placement;
+		} catch (error) {
+			throw new Error(
+				"Error lors de la chargement de toutes les freelancers dans une entreprise : " +
+					error.message
+			);
+		}
+	}
+
 	async getPlacementWithId(placementId) {
 		try {
 			if (!mongoose.Types.ObjectId.isValid(placementId)) {

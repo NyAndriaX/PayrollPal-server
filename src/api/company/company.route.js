@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { updatedCompanyUser } from "./company.controller.js";
+import {
+	updatedCompanyUser,
+	fetchAllFreelancer,
+	deleteOnePlacementInThisCompany,
+} from "./company.controller.js";
 
 const companyRoute = Router();
 /**
@@ -49,5 +53,35 @@ const companyRoute = Router();
  *           required: true
  */
 companyRoute.post("/settings/:userId", updatedCompanyUser);
+
+/**
+ * @swagger
+ * paths:
+ *   /api/company/all-freelancers/:idEntreprise:
+ *     get:
+ *       summary: Prendre toutes les freelancers
+ *       tags:
+ *         - Company
+ *       responses:
+ *         '200':
+ *           description: Succès, renvoie la liste de tous les freelancers
+ */
+companyRoute.get("/all-freelancers/:idEntreprise", fetchAllFreelancer);
+/**
+ * @swagger
+ * paths:
+ *   /api/company/freelancer/:idEntreprise/:idFreelance:
+ *     delete:
+ *       summary: Effacer un utilisateur
+ *       tags:
+ *         - Company
+ *       responses:
+ *         '200':
+ *           description: Succès, OK
+ */
+companyRoute.delete(
+	"/freelancer/:idEntreprise/:idFreelance",
+	deleteOnePlacementInThisCompany
+);
 
 export default companyRoute;
