@@ -375,7 +375,6 @@ const updatedCompanyUserHandler = async (userId, userData) => {
 			user,
 		};
 	} catch (error) {
-		console.log(error);
 		throw error;
 	}
 };
