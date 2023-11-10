@@ -34,7 +34,6 @@ class UserFreelancerRepository {
 	async getEmailVerificationCode(emailVerificationCode) {
 		try {
 			const user = await UserFreelancer.findOne({ emailVerificationCode });
-			console.log(user);
 			if (!user) {
 				throw new Error("Aucun utilisateur trouvé avec ce token.");
 			}

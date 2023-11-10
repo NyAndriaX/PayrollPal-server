@@ -50,6 +50,18 @@ const validationMessages = [
 		field: "numeroIdentificationFiscale",
 		message: "L'adresse de l'entreprise est  requis.",
 	},
+	{
+		field: "idPlacement",
+		message: "Le placement n'est pas définie",
+	},
+	{
+		field: "nbrDeJours",
+		message: "Le nombre de jours n'est pas définie",
+	},
+	{
+		field: "tjm",
+		message: "Le taux journalier n'est pas définie",
+	},
 ];
 
 export { validationMessages };

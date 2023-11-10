@@ -3,6 +3,9 @@ import {
 	updatedCompanyUser,
 	fetchAllFreelancer,
 	deleteOnePlacementInThisCompany,
+	validationDayValidity,
+	refuseDayValidity,
+	fetchAllDayDumpByFreelance,
 } from "./company.controller.js";
 
 const companyRoute = Router();
@@ -83,5 +86,51 @@ companyRoute.delete(
 	"/freelancer/:idEntreprise/:idFreelance",
 	deleteOnePlacementInThisCompany
 );
+/**
+ * @swagger
+ * paths:
+ *   /api/company/validationDeJours/:dayValidityId/:idPlacement:
+ *     get:
+ *       summary: Validation de jours
+ *       tags:
+ *         - Company
+ *       responses:
+ *         '200':
+ *           description: Succès, OK
+ */
+companyRoute.get(
+	"/validationDeJours/:dayValidityId/:idPlacement",
+	validationDayValidity
+);
+
+/**
+ * @swagger
+ * paths:
+ *   /api/company/refusDeJours/:dayValidityId/:idPlacement:
+ *     get:
+ *       summary: Refus de jours
+ *       tags:
+ *         - Company
+ *       responses:
+ *         '200':
+ *           description: Succès, OK
+ */
+companyRoute.get(
+	"/refusDeJours/:dayValidityId/:idPlacement",
+	refuseDayValidity
+);
+/**
+ * @swagger
+ * paths:
+ *   /api/company/dayValidity/:idEntreprise:
+ *     get:
+ *       summary: Prendre toutes les jours travaillé déposé dans cet entreprise
+ *       tags:
+ *         - Company
+ *       responses:
+ *         '200':
+ *           description: Succès, renvoie la liste de tous les jours travaillée
+ */
+companyRoute.get("/dayValidity/:idEntreprise", fetchAllDayDumpByFreelance);
 
 export default companyRoute;

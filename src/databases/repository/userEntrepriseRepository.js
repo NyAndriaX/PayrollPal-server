@@ -13,7 +13,6 @@ class UserEntrepriseRepository {
 			});
 			return await user.save();
 		} catch (error) {
-			console.log(error);
 			throw new Error(
 				"Erreur lors de la création de l'utilisateur entreprise : " +
 					error.message

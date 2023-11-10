@@ -5,6 +5,9 @@ import {
 	updatedCompanyUserHandler,
 	fetchAllFreelanceHandler,
 	deleteOnePlacementInThisCompanyHandler,
+	validationDayValidityHandler,
+	refuseDayValidityHandler,
+	fetchAllDayDumpByFreelanceHandler,
 } from "./company.handler.js";
 
 const updatedCompanyUser = async (req, res) => {
@@ -57,7 +60,40 @@ const deleteOnePlacementInThisCompany = async (req, res) => {
 			result,
 		});
 	} catch (error) {
-		console.log(error);
+		res.status(500).json({ Error: error.message });
+	}
+};
+
+const validationDayValidity = async (req, res) => {
+	const { dayValidityId, idPlacement } = req.params;
+	try {
+		const result = await validationDayValidityHandler(
+			dayValidityId,
+			idPlacement
+		);
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		res.status(500).json({ Error: error.message });
+	}
+};
+const refuseDayValidity = async (req, res) => {
+	const { dayValidityId, idPlacement } = req.params;
+	try {
+		const result = await refuseDayValidityHandler(dayValidityId, idPlacement);
+		return res.status(200).json({ result });
+	} catch (error) {
+		res.status(500).json({ Error: error.message });
+	}
+};
+
+const fetchAllDayDumpByFreelance = async (req, res) => {
+	const { idEntreprise } = req.params;
+	try {
+		const result = await fetchAllDayDumpByFreelanceHandler(idEntreprise);
+		return res.status(200).json({ result });
+	} catch (error) {
 		res.status(500).json({ Error: error.message });
 	}
 };
@@ -66,4 +102,7 @@ export {
 	updatedCompanyUser,
 	fetchAllFreelancer,
 	deleteOnePlacementInThisCompany,
+	validationDayValidity,
+	refuseDayValidity,
+	fetchAllDayDumpByFreelance,
 };

@@ -7,11 +7,13 @@ import UserAdminRepository from "../../databases/repository/userAdminRepository.
 import { convertPlacementDataHandler } from "../admin/admin.handler.js";
 import { ObjectId } from "mongoose";
 import { generateAuthToken } from "../utils/auth.validationUtils.js";
+import DayValidityRepository from "../../databases/repository/dayValidityRepository.js";
 
 const userFreelancerRepository = new UserFreelancerRepository();
 const userEntrepriseRepository = new UserEntrepriseRepository();
 const userAdminRepository = new UserAdminRepository();
 const placementRepository = new PlacementRepository();
+const dayValidityRepository = new DayValidityRepository();
 
 const updatedCompanyUserHandler = async (userId, userData) => {
 	try {
@@ -111,8 +113,65 @@ const deleteOnePlacementInThisCompanyHandler = async (
 	}
 };
 
+const validationDayValidityHandler = async (dayValidityId, idPlacement) => {
+	try {
+		const response = await dayValidityRepository.dayValiditing(
+			dayValidityId,
+			idPlacement
+		);
+		return response;
+	} catch (error) {
+		throw error;
+	}
+};
+
+const refuseDayValidityHandler = async (dayValidityId, idPlacement) => {
+	try {
+		const response = await dayValidityRepository.dayRefusing(
+			dayValidityId,
+			idPlacement
+		);
+		return response;
+	} catch (error) {
+		throw error;
+	}
+};
+
+const fetchAllDayDumpByFreelanceHandler = async (idEntreprise) => {
+	try {
+		const placements = await placementRepository.getPlacementWidthIdEntreprise(
+			idEntreprise
+		);
+
+		const allDayDumps = await Promise.all(
+			placements.map(async (placement) => {
+				const dayDump = await dayValidityRepository.getDayDumpByPlacementId(
+					placement._id
+				);
+
+				const freelanceDetailsArray =
+					await userFreelancerRepository.getAdminValidatedUsersAndId(
+						placement.idFreelance
+					);
+
+				const freelanceDetails = freelanceDetailsArray[0];
+
+				const dayDumpWithFreelance = { ...dayDump, freelanceDetails };
+
+				return dayDumpWithFreelance;
+			})
+		);
+		return allDayDumps;
+	} catch (error) {
+		throw error;
+	}
+};
+
 export {
 	updatedCompanyUserHandler,
 	fetchAllFreelanceHandler,
 	deleteOnePlacementInThisCompanyHandler,
+	validationDayValidityHandler,
+	refuseDayValidityHandler,
+	fetchAllDayDumpByFreelanceHandler,
 };

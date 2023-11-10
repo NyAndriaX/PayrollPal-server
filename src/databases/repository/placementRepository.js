@@ -4,12 +4,22 @@ import Placement from "../models/placement.js";
 class PlacementRepository {
 	async createPlacement(placementData) {
 		try {
+			const { idFreelance } = placementData;
+
+			const existingPlacement = await Placement.findOne({ idFreelance });
+
+			if (existingPlacement) {
+				throw new Error(
+					"Cet idFreelance est déjà associé à un autre placement."
+				);
+			}
+
 			const placement = new Placement(placementData);
 			const savedPlacement = await placement.save();
 			return savedPlacement;
 		} catch (error) {
 			throw new Error(
-				"Erreur lors de la creation du placement" + error.message
+				"Erreur lors de la création du placement : " + error.message
 			);
 		}
 	}
@@ -25,14 +35,31 @@ class PlacementRepository {
 				throw new Error("Placement introuvable.");
 			}
 
-			Object.assign(existingPlacement, placementData); //assemble le tous dans l'existingPlacement
-
+			Object.assign(existingPlacement, placementData);
 			const updatedPlacement = await existingPlacement.save();
 
 			return updatedPlacement;
 		} catch (error) {
 			throw new Error(
 				"Erreur lors de la modification du placement " + error.message
+			);
+		}
+	}
+
+	async getPlacementsByFreelanceId(idFreelance) {
+		try {
+			const placements = await Placement.find({ idFreelance });
+
+			if (placements.length === 0) {
+				throw new Error("Aucun placement trouvé pour cet idFreelance.");
+			}
+
+			return placements;
+		} catch (error) {
+			console.log(error);
+			throw new Error(
+				"Erreur lors de la récupération des placements pour l'idFreelance : " +
+					error.message
 			);
 		}
 	}
