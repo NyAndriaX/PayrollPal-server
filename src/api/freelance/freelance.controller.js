@@ -2,10 +2,38 @@ import {
 	depositDayValidityHandler,
 	fetchDayValidityWidthPlacementIdhandler,
 	fetchPlacementToStockThisFreelanceService,
+	updatedFreelanceUserHandler,
 } from "./freelance.handler.js";
-import { DayValidityValidation } from "./freelance.validation.js";
+import {
+	DayValidityValidation,
+	FreelanceValidation,
+} from "./freelance.validation.js";
 import { freelanceValidation } from "../utils/freelance.utils.js";
 import { validationMessages } from "../errors/auth.message.js";
+
+const updatedFreelanceUser = async (req, res) => {
+	const { userId } = req.params;
+	const userData = req.body;
+	try {
+		const errorMessage = await freelanceValidation(
+			req,
+			FreelanceValidation,
+			validationMessages
+		);
+
+		if (errorMessage) {
+			return res.status(400).json({ message: errorMessage });
+		}
+
+		const result = await updatedFreelanceUserHandler(userId, userData);
+
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		res.status(500).json({ Error: error.message });
+	}
+};
 
 const depositDayValidity = async (req, res) => {
 	const data = req.body;
@@ -59,4 +87,5 @@ export {
 	depositDayValidity,
 	fetchDayValidityWidthPlacementId,
 	fetchPlacementToStockThisFreelance,
+	updatedFreelanceUser,
 };
