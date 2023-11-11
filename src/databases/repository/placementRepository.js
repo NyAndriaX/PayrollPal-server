@@ -56,7 +56,6 @@ class PlacementRepository {
 
 			return placements;
 		} catch (error) {
-			console.log(error);
 			throw new Error(
 				"Erreur lors de la récupération des placements pour l'idFreelance : " +
 					error.message

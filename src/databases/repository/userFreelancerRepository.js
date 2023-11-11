@@ -22,7 +22,12 @@ class UserFreelancerRepository {
 
 	async getUserByEmail(email) {
 		try {
-			return await UserFreelancer.findOne({ email });
+			const user = await UserFreelancer.findOne({ email });
+			if (user.adminValidate !== true) {
+				throw new Error(
+					"Cet email doivent encore être validé par l'administrateur, Veuiller attendre s'il vous plaît."
+				);
+			}
 		} catch (error) {
 			throw new Error(
 				"Erreur lors de la récupération de l'utilisateur Freelancer par email : " +
