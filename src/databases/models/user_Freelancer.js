@@ -19,27 +19,16 @@ const userSchema = new mongoose.Schema({
 		required: true,
 		default: false,
 	},
+	emailVerificationCode: {
+		type: String,
+		required: true,
+	},
 	adminValidate: {
 		type: Boolean,
 		required: true,
 		default: false,
 	},
-	emailVerificationCode: {
-		type: String,
-		required: true,
-	},
-	confirmationToken: {
-		type: Number,
-		required: true,
-		default: 24 * 60 * 60 * 1000,
-	},
-	resetPasswordToken: {
-		type: String,
-	},
-	resetPasswordExpires: {
-		type: Date,
-	},
-	tel: {
+	ville: {
 		type: String,
 		required: true,
 	},
@@ -47,25 +36,58 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	dateDeNaissance: {
+	codePostal: {
+		type: String,
+		required: true,
+		default: "",
+	},
+	nif: {
+		type: String,
+		required: true,
+		default: "",
+	},
+	poste: {
 		type: String,
 		required: true,
 	},
-	informationsBancaires: {
-		type: {
-			IBAN: String,
-			BIC: String,
-			nomTitulaire: String,
-		},
+	iban: {
+		type: String,
+		required: true,
+		default: "",
+	},
+	bic: {
+		type: String,
 		required: true,
 	},
-	reseauProfessionnel: {
-		type: [String],
-		required: false,
+	banque: {
+		type: String,
+		required: true,
+	},
+	tel: {
+		type: String,
+		required: true,
+	},
+	cin: {
+		type: String,
+		required: true,
 	},
 	password: {
 		type: String,
 		required: true,
+	},
+	resetPasswordToken: {
+		type: String,
+		required: false,
+	},
+
+	resetPasswordExpires: {
+		type: Date,
+		required: false,
+	},
+	isAcceptedContract: {
+		type: Boolean,
+		required: true,
+		default: false,
 	},
 	roles: {
 		type: String,

@@ -1,260 +1,251 @@
+import { validation } from "./auth.utils.js";
 import {
-	signupForAdminHandler,
-	signupForFreelancerHandler,
-	signupForCompanyHandler,
-	isValidUserAndGetInfos,
-	findUserByEmailHandler,
-	// updateUserEntrepriseResetToken,
-	// findUserEntrepriseByResetToken,
-	// updateUserEntreprisePassword,
-	// validationAccountsForCompanyHandler,
-	// validationAccountsForFreelancerHandler,
-} from "./handler.js";
-import { validationAuth } from "../utils/auth.validationUtils.js";
+	freelanceSignupValidationRules,
+	companySignupValidationRules,
+	adminSignupValidationRules,
+} from "./auth.errors_message.js";
 import {
+	validateFreelanceSignup,
+	validateCompanySignup,
 	validateAdminSignup,
-	validateFreelancerSignup,
-	validateEntrepriseSignup,
-} from "./validation.js";
-import { validationMessages } from "../errors/index.js";
-// import UserEntreprise from "../../databases/models/user_Entreprise.js";
-// import UserEntrepriseRepository from "../../databases/repository/userEntrepriseRepository.js";
-// import UserFreelancer from "../../databases/models/user_Freelancer.js";
-// import UserFreelancerRepository from "../../databases/repository/userFreelancerRepository.js";
-// import User from "../../databases/models/user_Admin.js";
-// import UserAdminRepository from "../../databases/repository/userAdminRepository.js";
+} from "./auth.validation.js";
 import {
-	generateUniqueToken,
-	generateAuthToken,
-} from "../utils/auth.validationUtils.js";
-import { sendValidationEmail } from "../../service/validationCode.mail.js";
+	signupForFreelancerHandler,
+	signupForAdminHandler,
+	signupForCompanyHandler,
+	isEmailValidHandler,
+	isEmailAvailableHandler,
+	doesEmailExistHandler,
+	resendValidationCodeHanler,
+	resetPasswordHandler,
+	validateResetTokenHandler,
+	generateAndSendResetTokenHandler,
+	loginHandler,
+} from "./auth.handler.js";
+import {
+	sendValidationEmailConfirmation,
+	sendResetPasswordByEmail,
+} from "../../service/auth.email.js";
+import { generateUniqueToken } from "./auth.utils.js";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
 
-export const login = async (req, res) => {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const destinationPath = path.join(__dirname, "../../public", "cin");
+
+const login = async (req, res) => {
+	const data = req.body;
 	try {
-		const { email, password } = req.body;
-		const user = await findUserByEmailHandler(email);
-		if (typeof user === "String") {
-			throw new Error("Utilisateur non trouvé.");
-		}
-		if (!user) {
-			throw new Error("Utilisateur non trouvé.");
-		}
-		const isPasswordValid = await user.comparePassword(password);
+		const result = await loginHandler(data);
 
-		if (!isPasswordValid) {
-			throw new Error("Mot de passe incorrect.");
-		}
-		const authToken = generateAuthToken(user);
-
-		res.status(200).json({ authToken });
+		res.status(200).json({ result });
 	} catch (error) {
 		res.status(500).json({ message: error.message });
 	}
 };
-export const findUserByEmail = async (req, res) => {
-	const { email } = req.body;
-	try {
-		const result = await findUserByEmailHandler(email);
-		res.status(200).json({ message: result });
-	} catch (error) {
-		res.status(500).json({ message: error.message });
-	}
-};
 
-export const validationEmail = async (req, res) => {
-	const { token, email } = req.body;
+const isEmailAvailable = async (req, res) => {
+	const { email } = req.params;
 	try {
-		const result = await isValidUserAndGetInfos(token, email);
-		res.status(200).json(result);
+		const response = await isEmailAvailableHandler(email);
+		return res.status(200).json({ response });
 	} catch (error) {
 		res.status(500).json({
-			message:
-				"Une erreur est survenue lors de la validation, veuillez reessaier",
+			message: error.message,
 		});
 	}
 };
 
-export const signupForCompany = async (req, res) => {
+const isEmailValid = async (req, res) => {
+	const { token, email } = req.body;
 	try {
-		const errorMessage = await validationAuth(
-			req,
-			validateEntrepriseSignup,
-			validationMessages
-		);
-		if (errorMessage) {
-			return res.status(400).json({ message: errorMessage });
+		const result = await isEmailValidHandler(token, email);
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		res.status(500).json({
+			message: error.message,
+		});
+	}
+};
+
+const doesEmailExist = async (req, res) => {
+	const { email } = req.params;
+	try {
+		await doesEmailExistHandler(email);
+		return res.status(200).json({
+			success: true,
+		});
+	} catch (error) {
+		res.status(500).json({
+			message: error.message,
+		});
+	}
+};
+
+const signupForFreelancer = async (req, res) => {
+	try {
+		const { isAcceptedContract, ...userData } = req.body;
+		const cin = req.file?.filename;
+		if (isAcceptedContract) {
+			userData.isAcceptedContract = isAcceptedContract === "true";
 		}
+		const errors = await validation(
+			userData,
+			validateFreelanceSignup,
+			freelanceSignupValidationRules
+		);
+
+		if (errors) {
+			if (req.file?.filename) {
+				const filePath = path.join(destinationPath, req.file?.filename);
+				fs.unlinkSync(filePath);
+			}
+			return res.status(400).json({ message: errors });
+		}
+
+		userData.emailVerificationCode = generateUniqueToken();
+		userData.cin = cin;
+
+		const result = await signupForFreelancerHandler(userData);
+
+		await sendValidationEmailConfirmation(
+			userData.email,
+			userData.emailVerificationCode
+		);
+
+		return res.status(200).json({ result });
+	} catch (error) {
+		res.status(500).json({ message: error.message });
+	}
+};
+
+const signupForCompany = async (req, res) => {
+	try {
+		const errors = await validation(
+			req,
+			validateCompanySignup,
+			companySignupValidationRules
+		);
+
+		if (errors) {
+			return res.status(400).json({ message: errors });
+		}
+
 		const userData = {
 			...req.body,
 			emailVerificationCode: generateUniqueToken(),
 		};
 
 		const result = await signupForCompanyHandler(userData);
-		if (typeof result === "string") {
-			return res.status(400).json({ error: result });
-		}
-		await sendValidationEmail(
-			userData.emailRepresentant,
+
+		await sendValidationEmailConfirmation(
+			userData.representantEmail,
 			userData.emailVerificationCode
 		);
+
 		return res.status(200).json({
-			message:
-				"Votre compte est maintenant prête a être utiliser,Veulle la confirmer",
+			result,
 		});
 	} catch (error) {
-		res
-			.status(500)
-			.json({ message: "Une erreur est survenue lors de l'inscription" });
+		res.status(500).json({
+			message: error.message,
+		});
 	}
 };
-// export const validationAccountsForCompany = async (req, res) => {
-// 	try {
-// 		const { token, email } = req.body;
-// 		const result = await validationAccountsForCompanyHandler(token, email);
-
-// 		return res.status(201).json({ message: result });
-// 	} catch (error) {
-// 		res.status(500).json({
-// 			message:
-// 				"Une erreur est survenue lors de la validation, veuillez reessaier",
-// 		});
-// 	}
-// };
-export const signupForFreelancer = async (req, res) => {
+const signupForAdmin = async (req, res) => {
 	try {
-		const errorMessage = await validationAuth(
-			req,
-			validateFreelancerSignup,
-			validationMessages
-		);
-		if (errorMessage) {
-			return res.status(400).json({ message: errorMessage });
-		}
-		const userData = {
-			...req.body,
-			emailVerificationCode: generateUniqueToken(),
-		};
-		const result = await signupForFreelancerHandler(userData);
-		if (typeof result === "string") {
-			return res.status(400).json({ error: result });
-		}
-		await sendValidationEmail(userData.email, userData.emailVerificationCode);
-		return res
-			.status(200)
-			.json({ message: "Inscription réussie pour le compte Freelancer" });
-	} catch (error) {
-		res
-			.status(500)
-			.json({ message: "Une erreur est survenue lors de l'inscription ici" });
-	}
-};
-// export const validationAccountsForFreelancer = async (req, res) => {
-// 	try {
-// 		const { token, email } = req.body;
-// 		const result = await validationAccountsForFreelancerHandler(token, email);
-
-// 		return res.status(201).json({ message: result });
-// 	} catch (error) {
-// 		res.status(500).json({
-// 			message:
-// 				"Une erreur est survenue lors de la validation, veuillez reessaier",
-// 		});
-// 	}
-// };
-export const signupForAdmin = async (req, res) => {
-	try {
-		const errorMessage = await validationAuth(
+		const errors = await validation(
 			req,
 			validateAdminSignup,
-			validationMessages
+			adminSignupValidationRules
 		);
-		if (errorMessage) {
-			return res.status(400).json({ message: errorMessage });
+
+		if (errors) {
+			return res.status(400).json({ message: errors });
 		}
+
 		const result = await signupForAdminHandler(req.body);
-		if (typeof result === "string") {
-			return res.status(400).json({ error: result });
-		}
-		return res
-			.status(200)
-			.json({ message: "Inscription réussie pour le compte administration" });
+
+		return res.status(200).json({ result });
 	} catch (error) {
-		res
-			.status(500)
-			.json({ message: "Une erreur est survenue lors de l'inscription" });
+		res.status(500).json({ message: error.message });
 	}
 };
 
-// export const requestPasswordResetEntreprise = async (req, res) => {
-// 	try {
-// 		const { email } = req.body;
-// 		const user = await UserEntrepriseRepository.getUserByEmail(email);
+const resendValidationCode = async (req, res) => {
+	try {
+		const { email } = req.params;
+		const newValidationCode = generateUniqueToken();
+		const result = await resendValidationCodeHanler(email, newValidationCode);
+		await sendValidationEmailConfirmation(email, newValidationCode);
+		return res.status(200).json({ result });
+	} catch (error) {
+		return res.status(500).json({ message: error.message });
+	}
+};
 
-// 		if (!user) {
-// 			return res.status(400).json({ message: "Utilisateur introuvable." });
-// 		}
-// 		const resetToken = generateUniqueToken();
-// 		const resetTokenExpiry = new Date(
-// 			Date.now() + CONFIRMATION_TOKEN_EXPIRATION
-// 		);
-// 		await updateUserEntrepriseResetToken(user.id, resetToken, resetTokenExpiry);
-// 		await sendValidationEmail(email, resetToken);
+const resetPassword = async (req, res) => {
+	try {
+		const { email, token, newPassword } = req.body;
+		const result = await resetPasswordHandler(email, token, newPassword);
 
-// 		return res.status(200).json({
-// 			message: "Un e-mail a été envoyé pour réinitialiser votre mot de passe.",
-// 		});
-// 	} catch (error) {
-// 		res.status(500).json({
-// 			message:
-// 				"Une erreur est survenue lors de la réinitialisation du mot de passe.",
-// 		});
-// 	}
-// };
-// export const validationTokenEntreprise = async (req, res) => {
-// 	const { token } = req.params;
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			messsage: error.message,
+		});
+	}
+};
+const validateResetToken = async (req, res) => {
+	try {
+		const token = req.params.token;
+		const result = await validateResetTokenHandler(token);
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			message: error.message,
+		});
+	}
+};
 
-// 	try {
-// 		const user = await findUserEntrepriseByResetToken(token);
+const generateAndSendResetToken = async (req, res) => {
+	try {
+		const { email } = req.params;
+		const newValidationCode = generateUniqueToken();
+		const result = await generateAndSendResetTokenHandler(
+			email,
+			newValidationCode
+		);
+		await sendResetPasswordByEmail(email, newValidationCode);
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			message: error.message,
+		});
+	}
+};
 
-// 		if (!user || user.resetPasswordExpires < Date.now()) {
-// 			return res.status(400).json({
-// 				message: "Le lien de réinitialisation est invalide ou a expiré.",
-// 			});
-// 		}
-
-// 		return res
-// 			.status(200)
-// 			.json({ message: "Le jeton de réinitialisation est valide." });
-// 	} catch (error) {
-// 		res.status(500).json({
-// 			message:
-// 				"Une erreur est survenue lors de la validation du jeton de réinitialisation.",
-// 		});
-// 	}
-// };
-// export const resetPasswordEntreprise = async (req, res) => {
-// 	const { token, newPassword } = req.body;
-
-// 	try {
-// 		const user = await findUserEntrepriseByResetToken(token);
-
-// 		if (!user || user.resetPasswordExpires < Date.now()) {
-// 			return res.status(400).json({
-// 				message: "Le lien de réinitialisation est invalide ou a expiré.",
-// 			});
-// 		}
-
-// 		const hashedPassword = await bcrypt.hash(newPassword, 10);
-// 		await updateUserEntreprisePassword(user.id, hashedPassword);
-// 		await clearUserResetToken(user.id);
-
-// 		return res
-// 			.status(200)
-// 			.json({ message: "Mot de passe réinitialisé avec succès." });
-// 	} catch (error) {
-// 		res.status(500).json({
-// 			message:
-// 				"Une erreur est survenue lors de la réinitialisation du mot de passe.",
-// 		});
-// 	}
-// };
+export {
+	login,
+	signupForFreelancer,
+	signupForCompany,
+	signupForAdmin,
+	isEmailAvailable,
+	doesEmailExist,
+	isEmailValid,
+	resendValidationCode,
+	resetPassword,
+	generateAndSendResetToken,
+	validateResetToken,
+};

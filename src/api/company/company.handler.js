@@ -1,5 +1,5 @@
 import { sendCodeAndHTTPInValidationMailForUpdateCompany } from "../../service/admin.mailer.js";
-import { existingUserVerification } from "../authentification/handler.js";
+import { getUserByEmail } from "../authentification/example/handler.example.js";
 import UserFreelancerRepository from "../../databases/repository/userFreelancerRepository.js";
 import UserEntrepriseRepository from "../../databases/repository/userEntrepriseRepository.js";
 import PlacementRepository from "../../databases/repository/placementRepository.js";
@@ -17,9 +17,7 @@ const dayValidityRepository = new DayValidityRepository();
 
 const updatedCompanyUserHandler = async (userId, userData) => {
 	try {
-		const existingUser = await existingUserVerification(
-			userData.emailRepresentant
-		);
+		const existingUser = await getUserByEmail(userData.emailRepresentant);
 		if (existingUser && existingUser?._id.equals(new ObjectId(userId))) {
 			return "Cet email est déjà utilisé.";
 		}

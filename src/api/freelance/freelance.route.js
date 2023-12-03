@@ -95,28 +95,39 @@ freelanceRoute.get("/:idFreelance", fetchPlacementToStockThisFreelance);
  *         email:
  *           type: string
  *           required: true
- *         adresse:
- *           type: string
- *           required: true
- *         dateDeNaissance:
- *           type: string
- *           required: true
  *         tel:
  *           type: string
  *           required: true
- *         informationsBancaires:
- *           type: object
- *           properties:
- *             IBAN:
- *               type: string
- *             BIC:
- *               type: string
- *             nomTitulaire:
- *               type: string
- *           required:
- *             - IBAN
- *             - BIC
- *             - nomTitulaire
+ *         ville:
+ *           type: string
+ *           required: false
+ *         codePostal:
+ *           type: string
+ *           required: false
+ *         adresse:
+ *           type: string
+ *           required: false
+ *         poste:
+ *           type: string
+ *           required: false
+ *         nif:
+ *           type: string
+ *           required: false
+ *         iban:
+ *           type: string
+ *           required: false
+ *         bic:
+ *           type: string
+ *           required: false
+ *         banque:
+ *           type: string
+ *           required: false
+ *         password:
+ *           type: string
+ *           required: true
+ *         isPasswordConfirmed:
+ *           type: string
+ *           required: true
  */
 freelanceRoute.post("/settings/:userId", updatedFreelanceUser);
 

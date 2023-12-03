@@ -15,7 +15,7 @@ import {
 	getAllCompanyNotConditionHandler,
 	updatedCompanyUserHandler,
 } from "./admin.handler.js";
-import { validateAdminSignup } from "../authentification/validation.js";
+import { validateAdminSignup } from "../authentification/validation.example.js";
 import { validationAuth } from "../utils/index.js";
 import { validationMessages } from "../errors/index.js";
 import {

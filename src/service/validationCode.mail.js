@@ -20,7 +20,7 @@ const sendValidationEmail = async (email, token) => {
 			from: config.email_user,
 			to: email,
 			subject: "Code de validation d'email",
-			text: `Voici votre code de validation d'email sur Freelpay ${token}.`,
+			text: `Voici votre code de validation d'email sur PayrollPal ${token}.`,
 		};
 
 		const info = await transporter.sendMail(mailOptions);

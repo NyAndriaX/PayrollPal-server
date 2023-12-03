@@ -2,27 +2,47 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
+	representantNom: {
+		type: String,
+		required: true,
+	},
+	representantPrenom: {
+		type: String,
+		required: true,
+	},
+	representantCodePostal: {
+		type: String,
+		required: true,
+	},
+	representantAdresse: {
+		type: String,
+		required: true,
+	},
+	representantVille: {
+		type: String,
+		required: true,
+	},
+	representantEmail: {
+		type: String,
+		required: true,
+	},
+	representantTel: {
+		type: String,
+		required: true,
+	},
 	raisonSocial: {
 		type: String,
 		required: true,
 	},
-	adresseEntreprise: {
+	entrepriseVille: {
 		type: String,
 		required: true,
 	},
-	numeroIdentificationFiscale: {
+	entrepriseAdresse: {
 		type: String,
 		required: true,
 	},
-	nomRepresentant: {
-		type: String,
-		required: true,
-	},
-	prenomRepresentant: {
-		type: String,
-		required: true,
-	},
-	emailRepresentant: {
+	entrepriseCodePostal: {
 		type: String,
 		required: true,
 	},
@@ -35,23 +55,18 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	resetPasswordToken: {
-		type: String,
-	},
-	resetPasswordExpires: {
-		type: Date,
-	},
-	telRepresentant: {
-		type: String,
-		required: true,
-	},
-	adresseRepresentant: {
-		type: String,
-		required: true,
-	},
 	password: {
 		type: String,
 		required: true,
+	},
+	resetPasswordToken: {
+		type: String,
+		required: false,
+	},
+
+	resetPasswordExpires: {
+		type: Date,
+		required: false,
 	},
 	roles: {
 		type: String,

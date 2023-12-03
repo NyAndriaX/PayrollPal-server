@@ -1,2 +1,5 @@
 export * from "./auth.validationUtils.js";
-export * from "./removeUnverifiedAccounts.js";
+export {
+	deleteAutoAccountsForCompany,
+	deleteAutoAccountsForFreelancer,
+} from "./delete.auto.accounts.js";

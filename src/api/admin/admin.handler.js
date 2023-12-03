@@ -4,7 +4,7 @@ import PlacementRepository from "../../databases/repository/placementRepository.
 import UserAdminRepository from "../../databases/repository/userAdminRepository.js";
 import User from "../../databases/models/user_Admin.js";
 import { generateAuthToken } from "../utils/auth.validationUtils.js";
-import { existingUserVerification } from "../authentification/handler.js";
+import { getUserByEmail } from "../authentification/example/handler.example.js";
 import { sendCodeAndHTTPInValidationMailForUpdateCompany } from "../../service/admin.mailer.js";
 import { generateUniqueToken } from "../utils/auth.validationUtils.js";
 import { ObjectId } from "mongoose";
@@ -317,9 +317,7 @@ const updateProfilHandler = async (data) => {
 
 const createAccountCompanyHandler = async (userData) => {
 	try {
-		const existingUser = await existingUserVerification(
-			userData.emailRepresentant
-		);
+		const existingUser = await getUserByEmail(userData.emailRepresentant);
 		if (existingUser) {
 			return "Cet email est déjà utilisé.";
 		}
@@ -345,9 +343,7 @@ const getAllCompanyNotConditionHandler = async () => {
 
 const updatedCompanyUserHandler = async (userId, userData) => {
 	try {
-		const existingUser = await existingUserVerification(
-			userData.emailRepresentant
-		);
+		const existingUser = await getUserByEmail(userData.emailRepresentant);
 		if (existingUser && existingUser?._id.equals(new ObjectId(userId))) {
 			return "Cet email est déjà utilisé.";
 		}

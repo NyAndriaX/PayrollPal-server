@@ -15,16 +15,6 @@ const updatedFreelanceUser = async (req, res) => {
 	const { userId } = req.params;
 	const userData = req.body;
 	try {
-		const errorMessage = await freelanceValidation(
-			req,
-			FreelanceValidation,
-			validationMessages
-		);
-
-		if (errorMessage) {
-			return res.status(400).json({ message: errorMessage });
-		}
-
 		const result = await updatedFreelanceUserHandler(userId, userData);
 
 		return res.status(200).json({
