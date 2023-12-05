@@ -1,6 +1,3 @@
-import { validationAuth } from "../utils/index.js";
-import { CompanyValidation } from "./company.validation.js";
-import { validationMessages } from "../errors/index.js";
 import {
 	updatedCompanyUserHandler,
 	fetchAllFreelanceHandler,
@@ -9,15 +6,18 @@ import {
 	refuseDayValidityHandler,
 	fetchAllDayDumpByFreelanceHandler,
 } from "./company.handler.js";
+import { validation } from "./company.utils.js";
+import { CompanyValidation } from "./company.validation.js";
+import { companyValidationSignupMessages } from "./company.errors_message.js";
 
 const updatedCompanyUser = async (req, res) => {
 	const { userId } = req.params;
 	const userData = req.body;
 	try {
-		const errorMessage = await validationAuth(
+		const errorMessage = await validation(
 			req,
 			CompanyValidation,
-			validationMessages
+			companyValidationSignupMessages
 		);
 
 		if (errorMessage) {
@@ -30,7 +30,7 @@ const updatedCompanyUser = async (req, res) => {
 			result,
 		});
 	} catch (error) {
-		res.status(500).json({ Error: error.message });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -60,7 +60,7 @@ const deleteOnePlacementInThisCompany = async (req, res) => {
 			result,
 		});
 	} catch (error) {
-		res.status(500).json({ Error: error.message });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -75,7 +75,7 @@ const validationDayValidity = async (req, res) => {
 			result,
 		});
 	} catch (error) {
-		res.status(500).json({ Error: error.message });
+		res.status(500).json({ message: error.message });
 	}
 };
 const refuseDayValidity = async (req, res) => {
@@ -84,7 +84,7 @@ const refuseDayValidity = async (req, res) => {
 		const result = await refuseDayValidityHandler(dayValidityId, idPlacement);
 		return res.status(200).json({ result });
 	} catch (error) {
-		res.status(500).json({ Error: error.message });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -94,7 +94,7 @@ const fetchAllDayDumpByFreelance = async (req, res) => {
 		const result = await fetchAllDayDumpByFreelanceHandler(idEntreprise);
 		return res.status(200).json({ result });
 	} catch (error) {
-		res.status(500).json({ Error: error.message });
+		res.status(500).json({ message: error.message });
 	}
 };
 

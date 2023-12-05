@@ -17,7 +17,7 @@ const sendValidationEmail = async (email, token) => {
 		});
 
 		const mailOptions = {
-			from: config.email_user,
+			from: "Payrollpal <" + config.email_user + ">",
 			to: email,
 			subject: "Code de validation d'email",
 			text: `Voici votre code de validation d'email sur PayrollPal ${token}.`,

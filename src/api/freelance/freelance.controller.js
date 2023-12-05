@@ -6,32 +6,45 @@ import {
 } from "./freelance.handler.js";
 import {
 	DayValidityValidation,
-	FreelanceValidation,
+	FreelanceSignupValidation,
 } from "./freelance.validation.js";
-import { freelanceValidation } from "../utils/freelance.utils.js";
-import { validationMessages } from "../errors/auth.message.js";
+import {
+	DayValidityValidationMessages,
+	freelanceValidationSignupMessage,
+} from "./freelance.errors_message.js";
+import { validation } from "./freelance.utils.js";
 
 const updatedFreelanceUser = async (req, res) => {
 	const { userId } = req.params;
 	const userData = req.body;
 	try {
+		const errorMessage = await validation(
+			userData,
+			FreelanceSignupValidation,
+			freelanceValidationSignupMessage
+		);
+
+		if (errorMessage) {
+			return res.status(400).json({ message: errorMessage });
+		}
+
 		const result = await updatedFreelanceUserHandler(userId, userData);
 
 		return res.status(200).json({
 			result,
 		});
 	} catch (error) {
-		res.status(500).json({ Error: error.message });
+		res.status(500).json({ message: error.message });
 	}
 };
 
 const depositDayValidity = async (req, res) => {
 	const data = req.body;
 	try {
-		const errorMessage = await freelanceValidation(
+		const errorMessage = await validation(
 			req,
 			DayValidityValidation,
-			validationMessages
+			DayValidityValidationMessages
 		);
 
 		if (errorMessage) {
@@ -47,7 +60,7 @@ const depositDayValidity = async (req, res) => {
 			result,
 		});
 	} catch (error) {
-		res.status(500).json({ Error: error.message });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -59,7 +72,7 @@ const fetchDayValidityWidthPlacementId = async (req, res) => {
 			result,
 		});
 	} catch (error) {
-		res.status(500).json({ Error: error.message });
+		res.status(500).json({ message: error.message });
 	}
 };
 
@@ -69,7 +82,7 @@ const fetchPlacementToStockThisFreelance = async (req, res) => {
 		const result = await fetchPlacementToStockThisFreelanceService(idFreelance);
 		return res.status(200).json({ result });
 	} catch (error) {
-		res.status(500).json({ Error: error.message });
+		res.status(500).json({ message: error.message });
 	}
 };
 

@@ -1,10 +1,17 @@
 import { body } from "express-validator";
 
+const adminValidateSignup = [
+	body("nom").isString().notEmpty(),
+	body("prenom").isString().notEmpty(),
+	body("email").isEmail().notEmpty(),
+	body("password").isString().notEmpty().isLength({ min: 8 }).matches(/\d/),
+];
+
 const placementValidateData = [
 	body("idFreelance").isString().notEmpty(),
 	body("idFreelanceChasseur").isString().notEmpty(),
 	body("idEntreprise").isString().notEmpty(),
-	body("revenuMensuelFreelanceChasseur").isString().notEmpty(),
+	body("tjm").isString().notEmpty(),
 ];
 
 const CompanyVaidationInAdmin = [
@@ -18,4 +25,4 @@ const CompanyVaidationInAdmin = [
 	body("adresseRepresentant").isString().notEmpty(),
 ];
 
-export { placementValidateData, CompanyVaidationInAdmin };
+export { placementValidateData, CompanyVaidationInAdmin, adminValidateSignup };

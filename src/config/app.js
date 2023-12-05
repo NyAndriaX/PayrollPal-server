@@ -3,12 +3,12 @@ import cors from "cors";
 import mongoose from "mongoose";
 import { config } from "./index.js";
 import apiRoutes from "../api/index.js";
-import UserEntreprise from "../databases/models/user_Entreprise.js";
-import UserFreelancer from "../databases/models/user_Freelancer.js";
 import {
 	deleteAutoAccountsForCompany,
 	deleteAutoAccountsForFreelancer,
-} from "../api/utils/index.js";
+} from "../api/common/delete.auto.accounts.js";
+import UserEntreprise from "../databases/models/user_Entreprise.js";
+import UserFreelancer from "../databases/models/user_Freelancer.js";
 import multer from "multer";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";

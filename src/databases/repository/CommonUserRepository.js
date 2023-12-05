@@ -18,14 +18,43 @@ class CommonUserRepository {
 			throw error;
 		}
 	}
+	async updateUserProfile(userId, updatedUserData) {
+		try {
+			const { password, ...otherUpdatedData } = updatedUserData;
+
+			const updatedUser = await this.UserModel.findByIdAndUpdate(
+				userId,
+				{ $set: otherUpdatedData },
+				{ new: true }
+			);
+
+			return updatedUser;
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	async updatePassword(userId, newPassword) {
+		try {
+			const hashedPassword = await bcrypt.hash(newPassword, 10);
+			const updatedUser = await this.UserModel.findByIdAndUpdate(
+				userId,
+				{ $set: { password: hashedPassword } },
+				{ new: true }
+			);
+
+			return updatedUser;
+		} catch (error) {
+			throw error;
+		}
+	}
 
 	async validateResetToken(token) {
 		try {
-			const user = await this.UserModel.findOne({
+			return await this.UserModel.findOne({
 				resetPasswordToken: token,
 				resetPasswordExpires: { $gt: Date.now() },
 			});
-			return user;
 		} catch (error) {
 			throw error;
 		}
@@ -33,7 +62,7 @@ class CommonUserRepository {
 
 	async resetPassword(email, token) {
 		try {
-			const user = await this.UserModel.findOne({
+			return await this.UserModel.findOne({
 				$or: [
 					{
 						representantEmail: email,
@@ -47,7 +76,6 @@ class CommonUserRepository {
 					},
 				],
 			});
-			return user;
 		} catch (error) {
 			throw error;
 		}
@@ -55,26 +83,33 @@ class CommonUserRepository {
 
 	async getUserByEmail(email) {
 		try {
-			const user = await this.UserModel.findOne({
+			return await this.UserModel.findOne({
 				$or: [{ representantEmail: email }, { email: email }],
 			});
-			return user;
 		} catch (error) {
 			throw error;
 		}
 	}
+
 	async getUserById(userId) {
 		try {
-			const user = await this.UserModel.findById(userId);
-			return user;
+			return await this.UserModel.findById(userId);
 		} catch (error) {
 			throw error;
 		}
 	}
+
 	async getUserByEmailAndAdminValidate(email) {
 		try {
-			const user = await this.UserModel.findOne({ email, adminValidate: true });
-			return user;
+			return await this.UserModel.findOne({ email, adminValidate: true });
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	async deleteUser(userId) {
+		try {
+			return await this.UserModel.findByIdAndDelete(userId);
 		} catch (error) {
 			throw error;
 		}

@@ -20,7 +20,7 @@ const sendCodeAndHTTPInValidationMailForUpdateFreelance = async (
 		});
 
 		const mailOptions = {
-			from: config.email_user,
+			from: "Payrollpal <" + config.email_user + ">",
 			to: email,
 			subject: "Modification de compte sur le PayrollPay",
 			text: `Cet Email a été chécker pour faire une modification du paramétre d'un compte freelancer sur le placetform PayrollPal. Pour confirmer votre email veullier cliquer sur cet lien ${

@@ -1,6 +1,6 @@
 import CommonUserRepository from "./CommonUserRepository.js";
-import mongoose from "mongoose";
 import UserEntreprise from "../models/user_Entreprise.js";
+import mongoose from "mongoose";
 
 class UserEntrepriseRepository extends CommonUserRepository {
 	constructor() {
@@ -12,8 +12,7 @@ class UserEntrepriseRepository extends CommonUserRepository {
 			return await UserEntreprise.findOne({ emailRepresentant });
 		} catch (error) {
 			throw new Error(
-				"Erreur lors de la récupération de l'utilisateur entreprise par email : " +
-					error.message
+				`Erreur lors de la récupération de l'utilisateur entreprise par e-mail : ${error.message}`
 			);
 		}
 	}
@@ -24,8 +23,7 @@ class UserEntrepriseRepository extends CommonUserRepository {
 			return allUsers;
 		} catch (error) {
 			throw new Error(
-				"Erreur lors de la récupération de tous les utilisateurs : " +
-					error.message
+				`Erreur lors de la récupération de tous les utilisateurs : ${error.message}`
 			);
 		}
 	}
@@ -38,8 +36,7 @@ class UserEntrepriseRepository extends CommonUserRepository {
 			return confirmedUsers;
 		} catch (error) {
 			throw new Error(
-				"Erreur lors de la récupération de tous les utilisateurs confirmés : " +
-					error.message
+				`Erreur lors de la récupération de tous les utilisateurs confirmés : ${error.message}`
 			);
 		}
 	}
@@ -53,6 +50,7 @@ class UserEntrepriseRepository extends CommonUserRepository {
 			const user = await UserEntreprise.findById(userId).where({
 				isEmailConfirmed: true,
 			});
+
 			if (!user) {
 				throw new Error("Aucun utilisateur confirmé trouvé avec cet ID.");
 			}
@@ -60,30 +58,7 @@ class UserEntrepriseRepository extends CommonUserRepository {
 			return user;
 		} catch (error) {
 			throw new Error(
-				"Erreur lors de la récupération de l'utilisateur confirmé par ID : " +
-					error.message
-			);
-		}
-	}
-
-	async deleteConfirmedUserById(userId) {
-		try {
-			if (!mongoose.Types.ObjectId.isValid(userId)) {
-				throw new Error("L'ID de l'entreprise n'est pas valide.");
-			}
-
-			const result = await UserEntreprise.findByIdAndDelete(userId);
-			if (!result) {
-				throw new Error(
-					"Aucun utilisateur confirmé trouvé avec cet ID pour la suppression"
-				);
-			}
-
-			return "Suppression réussie";
-		} catch (error) {
-			throw new Error(
-				"Erreur lors de la suppression de l'utilisateur confirmé : " +
-					error.message
+				`Erreur lors de la récupération de l'utilisateur confirmé par ID : ${error.message}`
 			);
 		}
 	}

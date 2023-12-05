@@ -1,6 +1,6 @@
 import { validationResult } from "express-validator";
-import jwt from "jsonwebtoken";
 import { config } from "../../config/index.js";
+import jwt from "jsonwebtoken";
 
 const generateUniqueToken = () => {
 	const token = Math.random().toString(36).substr(2, 10);

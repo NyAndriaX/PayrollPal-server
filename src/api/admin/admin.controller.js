@@ -1,7 +1,7 @@
 import {
 	getUserWithFilter,
 	deleteUserHandler,
-	geCompanyAllUsersHandler,
+	getCompanyAllUsersHandler,
 	getFreelanceAllUsersHandler,
 	getUnvalidatedFreelancersHandler,
 	validateFreelancersHandler,
@@ -15,23 +15,22 @@ import {
 	getAllCompanyNotConditionHandler,
 	updatedCompanyUserHandler,
 } from "./admin.handler.js";
-import { validateAdminSignup } from "../authentification/validation.example.js";
-import { validationAuth } from "../utils/index.js";
-import { validationMessages } from "../errors/index.js";
 import {
-	adminValidation,
-	generateRandomPassword,
-} from "../utils/admin.utils.js";
-import {
+	adminValidateSignup,
 	placementValidateData,
 	CompanyVaidationInAdmin,
 } from "./admin.validation.js";
-import { AdminValidationMessage } from "../errors/index.js";
-import { sendCodeAndHTTPInValidationMailForNewAccountCompany } from "../../service/admin.mailer.js";
+import {
+	placementValidationMessage,
+	adminValidationSignupMessage,
+	companyValidationSignupMessage,
+} from "./admin.errors_message.js";
 import {
 	generateUniqueToken,
-	generateAuthToken,
-} from "../utils/auth.validationUtils.js";
+	generateRandomPassword,
+	validation,
+} from "./admin.utils.js";
+import { sendCodeAndHTTPInValidationMailForNewAccountCompany } from "../../service/admin.mailer.js";
 
 const getAllUsers = async (req, res) => {
 	try {
@@ -62,7 +61,7 @@ const getAllUsersFreelance = async (req, res) => {
 };
 const getAllUsersCompany = async (req, res) => {
 	try {
-		const result = await geCompanyAllUsersHandler();
+		const result = await getCompanyAllUsersHandler();
 		res.status(200).json({ result });
 	} catch (error) {
 		res.status(400).json({ Error: error.message });
@@ -97,13 +96,13 @@ const deleteFreelWait = async (req, res) => {
 const createPlacement = async (req, res) => {
 	const data = req.body;
 	try {
-		const validation = await adminValidation(
+		const resultValidation = await validation(
 			req,
 			placementValidateData,
-			AdminValidationMessage
+			placementValidationMessage
 		);
-		if (validation) {
-			return res.status(400).json({ message: validation });
+		if (resultValidation) {
+			return res.status(400).json({ message: resultValidation });
 		}
 
 		const result = await createPlacementHandler(data);
@@ -118,10 +117,10 @@ const updatePlacement = async (req, res) => {
 	const data = req.body;
 	const { placementId } = req.params;
 	try {
-		const validation = await adminValidation(
+		const validation = await validation(
 			req,
 			placementValidateData,
-			AdminValidationMessage
+			placementValidationMessage
 		);
 		if (validation) {
 			return res.status(400).json({ message: validation });
@@ -155,10 +154,10 @@ const getPlacement = async (req, res) => {
 
 const updatedProfil = async (req, res) => {
 	try {
-		const errorMessage = await validationAuth(
+		const errorMessage = await validation(
 			req,
-			validateAdminSignup,
-			validationMessages
+			adminValidateSignup,
+			adminValidationSignupMessage
 		);
 		if (errorMessage) {
 			return res.status(400).json({ message: errorMessage });
@@ -172,10 +171,10 @@ const updatedProfil = async (req, res) => {
 
 const createNewCompany = async (req, res) => {
 	try {
-		const errorMessage = await validationAuth(
+		const errorMessage = await validation(
 			req,
 			CompanyVaidationInAdmin,
-			validationMessages
+			companyValidationSignupMessage
 		);
 
 		if (errorMessage) {
@@ -223,10 +222,10 @@ const updatedCompanyUser = async (req, res) => {
 	const { userId } = req.params;
 	const userData = req.body;
 	try {
-		const errorMessage = await validationAuth(
+		const errorMessage = await validation(
 			req,
 			CompanyVaidationInAdmin,
-			validationMessages
+			companyValidationSignupMessage
 		);
 
 		if (errorMessage) {

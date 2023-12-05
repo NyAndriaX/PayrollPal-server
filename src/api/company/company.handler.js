@@ -1,19 +1,37 @@
 import { sendCodeAndHTTPInValidationMailForUpdateCompany } from "../../service/admin.mailer.js";
-import { getUserByEmail } from "../authentification/example/handler.example.js";
 import UserFreelancerRepository from "../../databases/repository/userFreelancerRepository.js";
 import UserEntrepriseRepository from "../../databases/repository/userEntrepriseRepository.js";
 import PlacementRepository from "../../databases/repository/placementRepository.js";
 import UserAdminRepository from "../../databases/repository/userAdminRepository.js";
 import { convertPlacementDataHandler } from "../admin/admin.handler.js";
-import { ObjectId } from "mongoose";
-import { generateAuthToken } from "../utils/auth.validationUtils.js";
 import DayValidityRepository from "../../databases/repository/dayValidityRepository.js";
+import { generateAuthToken } from "./company.utils.js";
+import { ObjectId } from "mongoose";
 
 const userFreelancerRepository = new UserFreelancerRepository();
 const userEntrepriseRepository = new UserEntrepriseRepository();
 const userAdminRepository = new UserAdminRepository();
 const placementRepository = new PlacementRepository();
 const dayValidityRepository = new DayValidityRepository();
+
+const getUserByEmail = async (email) => {
+	try {
+		let user;
+		if (await userAdminRepository.getUserByEmail(email)) {
+			user = await userAdminRepository.getUserByEmail(email);
+		} else if (await userFreelancerRepository.getUserByEmail(email)) {
+			user = await userFreelancerRepository.getUserByEmail(email);
+		} else if (await userEntrepriseRepository.getUserByEmail(email)) {
+			user = await userEntrepriseRepository.getUserByEmail(email);
+		} else {
+			return null;
+		}
+
+		return user;
+	} catch (error) {
+		throw error;
+	}
+};
 
 const updatedCompanyUserHandler = async (userId, userData) => {
 	try {
@@ -22,30 +40,15 @@ const updatedCompanyUserHandler = async (userId, userData) => {
 			return "Cet email est déjà utilisé.";
 		}
 
-		const user = await userEntrepriseRepository.getUserById(userId);
+		const user = await userEntrepriseRepository.updateUserProfile(
+			userId,
+			userData
+		);
 
-		if (user.emailRepresentant !== userData.emailRepresentant) {
-			user.isEmailConfirmed = false;
-			user.emailRepresentant = userData.emailRepresentant;
-			user.emailVerificationCode = generateUniqueToken();
-			await sendCodeAndHTTPInValidationMailForUpdateCompany(
-				user.emailRepresentant,
-				user.emailVerificationCode
-			);
-		}
-		user.nomRepresentant = userData.nomRepresentant;
-		user.prenomRepresentant = userData.prenomRepresentant;
-		user.raisonSocial = userData.raisonSocial;
-		user.adresseEntreprise = userData.adresseEntreprise;
-		user.adresseRepresentant = userData.adresseRepresentant;
-		user.numeroIdentificationFiscale = userData.numeroIdentificationFiscale;
-		user.telRepresentant = userData.telRepresentant;
-		await user.save();
-		const authToken = generateAuthToken(user);
+		const token = generateAuthToken(user);
 		return {
-			succes: true,
 			user,
-			authToken,
+			token,
 		};
 	} catch (error) {
 		throw error;
@@ -141,27 +144,38 @@ const fetchAllDayDumpByFreelanceHandler = async (idEntreprise) => {
 			idEntreprise
 		);
 
+		if (!placements || placements.length === 0) {
+			return [];
+		}
+
 		const allDayDumps = await Promise.all(
 			placements.map(async (placement) => {
-				const dayDump = await dayValidityRepository.getDayDumpByPlacementId(
-					placement._id
-				);
-
-				const freelanceDetailsArray =
-					await userFreelancerRepository.getAdminValidatedUsersAndId(
-						placement.idFreelance
+				try {
+					const dayDump = await dayValidityRepository.getDayDumpByPlacementId(
+						placement._id
 					);
 
-				const freelanceDetails = freelanceDetailsArray[0];
-
-				const dayDumpWithFreelance = { ...dayDump, freelanceDetails };
-
-				return dayDumpWithFreelance;
+					if (dayDump) {
+						const freelanceDetailsArray =
+							await userFreelancerRepository.getAdminValidatedFreelancers(
+								placement.idFreelance
+							);
+						const freelanceDetails = freelanceDetailsArray[0];
+						return { ...dayDump, freelanceDetails };
+					}
+				} catch (dayDumpError) {
+					throw dayDumpError;
+				}
 			})
 		);
-		return allDayDumps;
-	} catch (error) {
-		throw error;
+
+		const filteredDayDumps = allDayDumps.filter(
+			(dayDump) => dayDump !== undefined
+		);
+
+		return filteredDayDumps || [];
+	} catch (placementError) {
+		throw placementError;
 	}
 };
 

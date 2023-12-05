@@ -17,7 +17,7 @@ const sendValidationEmailConfirmation = async (email, token) => {
 		});
 
 		const mailOptions = {
-			from: config.email_user,
+			from: "Payrollpal <" + config.email_user + ">",
 			to: email,
 			subject: "Code de confirmation d'email",
 			text: `Voici votre code de confirmation d'email sur PayrollPal ${token}.`,
@@ -45,14 +45,15 @@ const sendResetPasswordByEmail = async (email, token) => {
 		});
 
 		const mailOptions = {
-			from: config.email_user,
+			from: "Payrollpal <" + config.email_user + ">",
 			to: email,
-			subject: "Code de confirmation d'email",
+			subject: "Modification de mot de passe sur Payrollpal",
 			text: `Voici votre code de confirmation d'email sur PayrollPal ${token} pour modifier votre mot de passe .`,
 		};
 
 		const info = await transporter.sendMail(mailOptions);
 	} catch (error) {
+		console.log(error);
 		throw new Error("Erreur lors de l'envoi de l'e-mail de confirmation.");
 	}
 };

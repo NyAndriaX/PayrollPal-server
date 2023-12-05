@@ -3,10 +3,8 @@ import UserEntrepriseRepository from "../../databases/repository/userEntrepriseR
 import PlacementRepository from "../../databases/repository/placementRepository.js";
 import UserAdminRepository from "../../databases/repository/userAdminRepository.js";
 import DayValidityRepository from "../../databases/repository/dayValidityRepository.js";
-import { getUserByEmail } from "../authentification/example/handler.example.js";
-import { generateUniqueToken } from "../utils/auth.validationUtils.js";
-import { generateAuthToken } from "../utils/auth.validationUtils.js";
 import { sendCodeAndHTTPInValidationMailForUpdateFreelance } from "../../service/freelance.mailer.js";
+import { generateUniqueToken, generateAuthToken } from "./freelance.utils.js";
 import { ObjectId } from "mongoose";
 
 const userFreelancerRepository = new UserFreelancerRepository();
@@ -15,34 +13,52 @@ const userAdminRepository = new UserAdminRepository();
 const placementRepository = new PlacementRepository();
 const dayValidityRepository = new DayValidityRepository();
 
-const updatedFreelanceUserHandler = async (userId, userData) => {
+const getUserByEmail = async (email) => {
 	try {
-		const user = await userFreelancerRepository.getUserById(userId);
-
-		if (userData.email && user.email !== userData.email) {
-			user.isEmailConfirmed = false;
-			user.email = userData.email;
-			user.emailVerificationCode = generateUniqueToken();
-			await sendCodeAndHTTPInValidationMailForUpdateFreelance(
-				user.email,
-				user.emailVerificationCode
-			);
+		let user;
+		if (await userAdminRepository.getUserByEmail(email)) {
+			user = await userAdminRepository.getUserByEmail(email);
+		} else if (await userFreelancerRepository.getUserByEmail(email)) {
+			user = await userFreelancerRepository.getUserByEmail(email);
+		} else if (await userEntrepriseRepository.getUserByEmail(email)) {
+			user = await userEntrepriseRepository.getUserByEmail(email);
+		} else {
+			return null;
 		}
 
-		Object.keys(userData).forEach((key) => {
-			if (key !== "email" && user.hasOwnProperty(key)) {
-				user[key] = userData[key];
-			}
-		});
+		return user;
+	} catch (error) {
+		throw error;
+	}
+};
 
-		await user.save();
+const updatedFreelanceUserHandler = async (userId, userData) => {
+	const { email, _id } = userData;
 
-		const authToken = generateAuthToken(user);
-		return {
-			success: true,
-			user,
-			authToken,
-		};
+	try {
+		const [isFreelanceValid, isEntrepriseValid, isAdminValid, existingUser] =
+			await Promise.all([
+				userFreelancerRepository.getUserByEmail(email),
+				userEntrepriseRepository.getUserByEmail(email),
+				userAdminRepository.getUserByEmail(email),
+			]);
+
+		if (isAdminValid || isEntrepriseValid) {
+			throw new Error("Cet email existe déjà");
+		}
+
+		if (existingUser && existingUser.email !== email && isAdminValid) {
+			throw new Error("Cet email existe déjà");
+		}
+
+		const user = await userFreelancerRepository.updateUserProfile(
+			_id,
+			userData
+		);
+
+		const token = generateAuthToken(existingUser);
+
+		return { user: user, token };
 	} catch (error) {
 		throw error;
 	}

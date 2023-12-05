@@ -13,7 +13,7 @@ const placementSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	revenuMensuelFreelanceChasseur: {
+	tjm: {
 		type: String,
 		required: true,
 	},
