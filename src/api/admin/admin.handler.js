@@ -138,12 +138,14 @@ const convertPlacementDataHandler = async (placement) => {
 				id: placement.idFreelance,
 				nom: freelance?.nom,
 				prenom: freelance?.prenom,
+				poste: freelance?.poste,
 				tel: freelance?.tel,
 			},
 			FreelanceChasseur: {
 				id: placement.idFreelanceChasseur,
 				nom: freelanceChasseur?.nom,
 				prenom: freelanceChasseur?.prenom,
+				poste: freelance?.poste,
 				tel: freelanceChasseur?.tel,
 			},
 			entreprise: {
@@ -172,7 +174,14 @@ const createPlacementHandler = async (data) => {
 		if (isPlacementExist.length !== 0) {
 			throw new Error("Le placement a déjà été effectué");
 		}
+		const placementFreelance =
+			await placementRepository.getPlacementsByFreelanceId(idFreelance);
 
+		if (placementFreelance.length !== 0) {
+			throw new Error(
+				"Cet freelancer est déjà placer dans une autre entreprise."
+			);
+		}
 		const isFreelanceValid =
 			await userFreelancerRepository.getAdminValidatedFreelancers(idFreelance);
 

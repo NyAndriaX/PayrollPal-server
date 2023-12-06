@@ -50,10 +50,6 @@ class PlacementRepository {
 		try {
 			const placements = await Placement.find({ idFreelance });
 
-			if (placements.length === 0) {
-				throw new Error("Aucun placement trouvé pour cet idFreelance.");
-			}
-
 			return placements;
 		} catch (error) {
 			throw new Error(

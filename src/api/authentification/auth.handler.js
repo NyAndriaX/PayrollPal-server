@@ -44,22 +44,30 @@ const isEmailAvailableHandler = async (email) => {
 const doesEmailExistHandler = async (email) => {
 	try {
 		const user = await getUserByEmail(email);
+
 		if (!user) {
 			throw new Error("Cet email n'existe pas");
 		}
 
+		const { roles, isEmailConfirmed, adminValidate } = user;
+
 		if (
-			user.roles === "ROLES_ADMIN" ||
-			(user.isEmailConfirmed && user.roles !== "ROLES_ADMIN")
+			roles === "ROLES_ADMIN" ||
+			(isEmailConfirmed &&
+				(roles === "ROLES_COMPANY" ||
+					(roles === "ROLES_FREELANCE" && adminValidate)))
 		) {
-			return {
-				success: true,
-				user,
-			};
+			return { success: true, user };
+		}
+
+		if (roles === "ROLES_FREELANCE" && !adminValidate) {
+			throw new Error(
+				"Cet utilisateur doit être encore en attente de la validation de l'admin."
+			);
 		}
 
 		throw new Error(
-			"Cet email n'est pas activé, veuillez vérifier votre email"
+			"Cet email n'est pas activé, veuillez vérifier votre email."
 		);
 	} catch (error) {
 		throw error;

@@ -4,6 +4,7 @@ import PlacementRepository from "../../databases/repository/placementRepository.
 import UserAdminRepository from "../../databases/repository/userAdminRepository.js";
 import DayValidityRepository from "../../databases/repository/dayValidityRepository.js";
 import { sendCodeAndHTTPInValidationMailForUpdateFreelance } from "../../service/freelance.mailer.js";
+import { convertPlacementDataHandler } from "../admin/admin.handler.js";
 import { generateUniqueToken, generateAuthToken } from "./freelance.utils.js";
 import { ObjectId } from "mongoose";
 
@@ -87,7 +88,8 @@ const fetchPlacementToStockThisFreelanceService = async (idFreelance) => {
 		const response = await placementRepository.getPlacementsByFreelanceId(
 			idFreelance
 		);
-		return response;
+		const convertedResult = await convertPlacementDataHandler(response[0]);
+		return convertedResult;
 	} catch (error) {
 		throw error;
 	}
