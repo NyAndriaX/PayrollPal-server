@@ -1,7 +1,8 @@
 import { Router } from "express";
 import {
 	depositDayValidity,
-	fetchDayValidityWidthPlacementId,
+	fetchDayValidityInThisMonthByPlacementId,
+	fetchDayValidityByPlacementId,
 	fetchPlacementToStockThisFreelance,
 	updatedFreelanceUser,
 } from "./freelance.controller.js";
@@ -41,7 +42,7 @@ freelanceRoute.post("/depositDayValidity", depositDayValidity);
  * paths:
  *   /api/freelance/dayValidity/:placementId:
  *     get:
- *       summary: Prendre le jours travaillé d'une placement
+ *       summary: Prendre le jours travaillé d'une placement ce mois ci
  *       tags:
  *         - Freelance
  *       responses:
@@ -50,7 +51,23 @@ freelanceRoute.post("/depositDayValidity", depositDayValidity);
  */
 freelanceRoute.get(
 	"/dayValidity/:placementId",
-	fetchDayValidityWidthPlacementId
+	fetchDayValidityInThisMonthByPlacementId
+);
+/**
+ * @swagger
+ * paths:
+ *   /api/freelance/allDayValidity/:placementId:
+ *     get:
+ *       summary: Prendre toutes les jours travaillé d'une placement
+ *       tags:
+ *         - Freelance
+ *       responses:
+ *         '200':
+ *           description: Succès, le dayDump
+ */
+freelanceRoute.get(
+	"/allDayValidity/:placementId",
+	fetchDayValidityByPlacementId
 );
 /**
  * @swagger

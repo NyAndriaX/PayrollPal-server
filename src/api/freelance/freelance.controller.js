@@ -1,7 +1,8 @@
 import {
 	depositDayValidityHandler,
-	fetchDayValidityWidthPlacementIdhandler,
+	fetchDayValidityInThisMonthByPlacementIdhandler,
 	fetchPlacementToStockThisFreelanceService,
+	fetchDayValidityByPlacementIdHandler,
 	updatedFreelanceUserHandler,
 } from "./freelance.handler.js";
 import {
@@ -64,10 +65,24 @@ const depositDayValidity = async (req, res) => {
 	}
 };
 
-const fetchDayValidityWidthPlacementId = async (req, res) => {
+const fetchDayValidityInThisMonthByPlacementId = async (req, res) => {
 	const { placementId } = req.params;
 	try {
-		const result = await fetchDayValidityWidthPlacementIdhandler(placementId);
+		const result = await fetchDayValidityInThisMonthByPlacementIdhandler(
+			placementId
+		);
+		return res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		res.status(500).json({ message: error.message });
+	}
+};
+
+const fetchDayValidityByPlacementId = async (req, res) => {
+	const { placementId } = req.params;
+	try {
+		const result = await fetchDayValidityByPlacementIdHandler(placementId);
 		return res.status(200).json({
 			result,
 		});
@@ -88,7 +103,8 @@ const fetchPlacementToStockThisFreelance = async (req, res) => {
 
 export {
 	depositDayValidity,
-	fetchDayValidityWidthPlacementId,
+	fetchDayValidityInThisMonthByPlacementId,
 	fetchPlacementToStockThisFreelance,
+	fetchDayValidityByPlacementId,
 	updatedFreelanceUser,
 };

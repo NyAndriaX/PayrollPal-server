@@ -6,7 +6,7 @@ class DayValidityRepository {
 	async createDayValidity(data) {
 		try {
 			const currentDate = moment();
-			if (currentDate.date() !== 10) {
+			if (currentDate.date() === 10) {
 				throw new Error(
 					"La création du DayDump est possible uniquement le 9e jour du mois."
 				);
@@ -35,7 +35,7 @@ class DayValidityRepository {
 		}
 	}
 
-	async getDayDumpByPlacementId(placementId) {
+	async getDayDumpInThisMonthByPlacementId(placementId) {
 		try {
 			if (!mongoose.Types.ObjectId.isValid(placementId)) {
 				throw new Error("L'identifiant du placement n'est pas valide.");
@@ -47,6 +47,25 @@ class DayValidityRepository {
 					$gte: moment().startOf("month"),
 					$lt: moment().endOf("month"),
 				},
+			});
+
+			return dayDump;
+		} catch (error) {
+			throw new Error(
+				"Erreur lors de la récupération du DayDump pour le placement : " +
+					error.message
+			);
+		}
+	}
+
+	async getDayDumpInByPlacementId(placementId) {
+		try {
+			if (!mongoose.Types.ObjectId.isValid(placementId)) {
+				throw new Error("L'identifiant du placement n'est pas valide.");
+			}
+
+			const dayDump = await DayValidity.find({
+				idPlacement: placementId,
 			});
 
 			return dayDump;

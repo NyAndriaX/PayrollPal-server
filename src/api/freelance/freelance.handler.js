@@ -3,35 +3,14 @@ import UserEntrepriseRepository from "../../databases/repository/userEntrepriseR
 import PlacementRepository from "../../databases/repository/placementRepository.js";
 import UserAdminRepository from "../../databases/repository/userAdminRepository.js";
 import DayValidityRepository from "../../databases/repository/dayValidityRepository.js";
-import { sendCodeAndHTTPInValidationMailForUpdateFreelance } from "../../service/freelance.mailer.js";
 import { convertPlacementDataHandler } from "../admin/admin.handler.js";
-import { generateUniqueToken, generateAuthToken } from "./freelance.utils.js";
-import { ObjectId } from "mongoose";
+import { generateAuthToken } from "./freelance.utils.js";
 
 const userFreelancerRepository = new UserFreelancerRepository();
 const userEntrepriseRepository = new UserEntrepriseRepository();
 const userAdminRepository = new UserAdminRepository();
 const placementRepository = new PlacementRepository();
 const dayValidityRepository = new DayValidityRepository();
-
-const getUserByEmail = async (email) => {
-	try {
-		let user;
-		if (await userAdminRepository.getUserByEmail(email)) {
-			user = await userAdminRepository.getUserByEmail(email);
-		} else if (await userFreelancerRepository.getUserByEmail(email)) {
-			user = await userFreelancerRepository.getUserByEmail(email);
-		} else if (await userEntrepriseRepository.getUserByEmail(email)) {
-			user = await userEntrepriseRepository.getUserByEmail(email);
-		} else {
-			return null;
-		}
-
-		return user;
-	} catch (error) {
-		throw error;
-	}
-};
 
 const updatedFreelanceUserHandler = async (userId, userData) => {
 	const { email, _id } = userData;
@@ -73,9 +52,21 @@ const depositDayValidityHandler = async (data) => {
 		throw error;
 	}
 };
-const fetchDayValidityWidthPlacementIdhandler = async (placementId) => {
+const fetchDayValidityInThisMonthByPlacementIdhandler = async (placementId) => {
 	try {
-		const response = await dayValidityRepository.getDayDumpByPlacementId(
+		const response =
+			await dayValidityRepository.getDayDumpInThisMonthByPlacementId(
+				placementId
+			);
+		return response;
+	} catch (error) {
+		throw error;
+	}
+};
+
+const fetchDayValidityByPlacementIdHandler = async (placementId) => {
+	try {
+		const response = await dayValidityRepository.getDayDumpInByPlacementId(
 			placementId
 		);
 		return response;
@@ -83,6 +74,7 @@ const fetchDayValidityWidthPlacementIdhandler = async (placementId) => {
 		throw error;
 	}
 };
+
 const fetchPlacementToStockThisFreelanceService = async (idFreelance) => {
 	try {
 		const response = await placementRepository.getPlacementsByFreelanceId(
@@ -97,7 +89,8 @@ const fetchPlacementToStockThisFreelanceService = async (idFreelance) => {
 
 export {
 	depositDayValidityHandler,
-	fetchDayValidityWidthPlacementIdhandler,
+	fetchDayValidityInThisMonthByPlacementIdhandler,
 	fetchPlacementToStockThisFreelanceService,
+	fetchDayValidityByPlacementIdHandler,
 	updatedFreelanceUserHandler,
 };

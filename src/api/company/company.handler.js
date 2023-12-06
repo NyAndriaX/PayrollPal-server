@@ -151,9 +151,10 @@ const fetchAllDayDumpByFreelanceHandler = async (idEntreprise) => {
 		const allDayDumps = await Promise.all(
 			placements.map(async (placement) => {
 				try {
-					const dayDump = await dayValidityRepository.getDayDumpByPlacementId(
-						placement._id
-					);
+					const dayDump =
+						await dayValidityRepository.getDayDumpInThisMonthByPlacementId(
+							placement._id
+						);
 
 					if (dayDump) {
 						const freelanceDetailsArray =
