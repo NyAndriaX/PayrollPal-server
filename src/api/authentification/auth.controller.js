@@ -192,7 +192,6 @@ const resendValidationCode = async (req, res) => {
 const resetPassword = async (req, res) => {
 	try {
 		const { email, token, newPassword } = req.body;
-		console.log(req.body);
 		const result = await resetPasswordHandler(email, token, newPassword);
 
 		return res.status(200).json({
